@@ -1,5 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button";
+import { SignInButton } from "@clerk/nextjs";
 import { ArrowRight, ArrowUp, HomeIcon, ImagePlus, Key, LayoutDashboard, User } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -47,9 +48,13 @@ export default function Home() {
             Contact us
           </a>
         </nav>
-        <Button>
-          Get Started <ArrowRight />
-        </Button>
+        <div>
+          <SignInButton mode="modal">
+            <Button>
+              Get Started <ArrowRight />
+            </Button>
+          </SignInButton>
+        </div>
       </header>
 
       {/* Main Content */}
