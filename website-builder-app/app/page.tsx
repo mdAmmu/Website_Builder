@@ -74,7 +74,10 @@ export default function Home() {
           ></textarea>
           <div className="flex justify-between">
             <Button variant={'outline'}><ImagePlus /></Button>
-            <Button><ArrowUp /></Button>
+            <SignInButton mode="modal" forceRedirectUrl={'/workspace'}>
+              <Button disabled={!userInput}><ArrowUp /></Button>
+            </SignInButton>
+            
           </div>
         </div>
 
