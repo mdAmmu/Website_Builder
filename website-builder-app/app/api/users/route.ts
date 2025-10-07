@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   if (existingUser.length === 0) {
     const data = {
       name: user.fullName ?? "NA",
-      email,
+      email: user.primaryEmailAddress?.emailAddress ?? "", 
       credits: 2,
     };
 
