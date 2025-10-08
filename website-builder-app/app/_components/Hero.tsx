@@ -1,8 +1,12 @@
 "use client"
 import { Button } from '@/components/ui/button';
-import { SignInButton } from '@clerk/nextjs';
-import { ArrowUp, HomeIcon, ImagePlus, Key, LayoutDashboard, User } from 'lucide-react';
+import { SignInButton, useUser } from '@clerk/nextjs';
+import { ArrowUp, HomeIcon, ImagePlus, Key, LayoutDashboard, Loader2Icon, User } from 'lucide-react';
 import React, { useState } from 'react'
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 const suggestions = [
   {
@@ -28,7 +32,42 @@ const suggestions = [
 ]
 
 const Hero = () => {
+
     const [userInput, setUserInput] = useState<string>();
+    const {user} = useUser();
+    const router = useRouter()
+    const [loading,setLoading] = useState(false);
+
+
+    const CreatedNewProject = async() => {
+      setLoading(true);
+      const projectId = uuidv4();
+      const frameId = generateRandomFrameNumber();
+      const messages = [
+        {
+          role:'user',
+          content: userInput,
+        }
+      ]
+
+      try{
+
+        const result = await axios.post('/api/projects',{
+          projectId: projectId,
+          frameId: frameId,
+          messages: messages,
+        });
+        console.log(result.data);
+        toast.success('Project Created')
+        // Navigate to Playground
+        router.push(`/playground/${projectId}?frameId=${frameId}`)
+        setLoading(false);
+      } catch (e){
+          toast.error('Internal server error')
+          console.log(e);
+          setLoading(false);
+      }
+    }
   return (
     <div>
         <main className="flex flex-col items-center justify-center text-center px-6 py-16">
@@ -45,12 +84,16 @@ const Hero = () => {
             className="w-full h-24 p-3 border-none outline-none bg-transparent resize-none text-gray-800"
             placeholder="Describe your page design"
           ></textarea>
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <Button variant={'outline'}><ImagePlus /></Button>
-            <SignInButton mode="modal" forceRedirectUrl={'/workspace'}>
-              <Button disabled={!userInput}><ArrowUp /></Button>
-            </SignInButton>
-            
+            {!user ? 
+              <SignInButton mode="modal" forceRedirectUrl={'/workspace'}>
+                <Button disabled={!userInput}><ArrowUp /></Button>
+              </SignInButton>
+              :
+              <Button disabled={!userInput || loading} onClick={CreatedNewProject}>
+                {loading ? <Loader2Icon className='animate-spin'/> : <ArrowUp /> }</Button>
+            }
           </div>
         </div>
 
@@ -69,3 +112,8 @@ const Hero = () => {
 }
 
 export default Hero
+
+const generateRandomFrameNumber = () => {
+  const num = Math.floor(Math.random()*10000);
+  return num
+}
